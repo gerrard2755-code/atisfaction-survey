@@ -7,7 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 class Suggestion extends Model
 {
     protected $fillable = ['response_id', 'comment'];
-    protected $casts = ['created_at' => 'datetime', 'updated_at' => 'datetime'];
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
 
     public function response()
     {

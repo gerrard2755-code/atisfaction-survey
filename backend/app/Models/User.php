@@ -2,19 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Model;
 
-class User extends Authenticatable
+class User extends Model
 {
     protected $fillable = ['username', 'email', 'password', 'fullname', 'role'];
-    protected $hidden = ['password', 'remember_token'];
-    protected $casts = ['email_verified_at' => 'datetime'];
-
-    const ROLE_ADMIN = 'admin';
-    const ROLE_STAFF = 'staff';
+    protected $hidden = ['password'];
 
     public function isAdmin()
     {
-        return $this->role === self::ROLE_ADMIN;
+        return $this->role === 'admin';
     }
 }
