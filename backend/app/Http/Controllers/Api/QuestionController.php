@@ -5,36 +5,55 @@ namespace App\Http\Controllers\Api;
 use App\Models\Question;
 use App\Models\Questionnaire;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
-class QuestionController
+class QuestionController extends BaseController
 {
     public function store(Request $request, Questionnaire $questionnaire)
     {
-        $validated = $request->validate([
-            'question' => 'required|string',
-            'category' => 'required|in:content,design,usability,performance',
-            'order_no' => 'required|integer',
-        ]);
+        try {
+            $validated = $request->validate([
+                'question' => 'required|string|max:500',
+                'category' => 'required|in:content,design,usability,performance',
+                'order_no' => 'required|integer|min:1',
+            ]);
 
-        $question = $questionnaire->questions()->create($validated);
-        return response()->json($question, 201);
+            $question = $questionnaire->questions()->create($validated);
+
+            return $this->sendSuccess($question, 'Question created successfully', 201);
+        } catch (ValidationException $e) {
+            return $this->sendError('Validation Error', null, 422, $e->errors());
+        } catch (\Exception $e) {
+            return $this->sendError('Error', $e->getMessage(), 500);
+        }
     }
 
     public function update(Request $request, Question $question)
     {
-        $validated = $request->validate([
-            'question' => 'string',
-            'category' => 'in:content,design,usability,performance',
-            'order_no' => 'integer',
-        ]);
+        try {
+            $validated = $request->validate([
+                'question' => 'string|max:500',
+                'category' => 'in:content,design,usability,performance',
+                'order_no' => 'integer|min:1',
+            ]);
 
-        $question->update($validated);
-        return response()->json($question);
+            $question->update($validated);
+
+            return $this->sendSuccess($question, 'Question updated successfully');
+        } catch (ValidationException $e) {
+            return $this->sendError('Validation Error', null, 422, $e->errors());
+        } catch (\Exception $e) {
+            return $this->sendError('Error', $e->getMessage(), 500);
+        }
     }
 
     public function destroy(Question $question)
     {
-        $question->delete();
-        return response()->json(null, 204);
+        try {
+            $question->delete();
+            return $this->sendSuccess(null, 'Question deleted successfully', 204);
+        } catch (\Exception $e) {
+            return $this->sendError('Error', $e->getMessage(), 500);
+        }
     }
 }
